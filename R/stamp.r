@@ -65,8 +65,22 @@ stamp <- function(x, orders = lubridate_formats,
 
   if( !quiet )
     message("Using: \"", FMT, "\"")
-
-  f <- eval(substitute(function(x){ format(x, format = FMT)}, list(FMT = FMT)), envir = topenv())
+  
+  f <- eval(
+         substitute(
+           function(x){
+              
+             # if the format specifies UTC, change timezone to UTC
+             if (str_detect(FMT, "Z$")){
+               x <- with_tz(x, tzone="UTC")  
+             }
+    
+             format(x, format = FMT)
+           }, 
+           list(FMT = FMT)
+         ), 
+         envir = topenv()
+       )
   attr(f, "srcref") <- NULL
   f
 }

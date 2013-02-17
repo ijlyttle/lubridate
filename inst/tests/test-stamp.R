@@ -1,4 +1,4 @@
-
+context("Stamp")
 
 ## y <- c('February 20th 1973',
 ##        "february  14, 2004",
@@ -69,6 +69,7 @@ test_that("stamp selects the correct format",{
 '00/13/10'                          '12/13/08'                            
 '14 12 00'                          '13 08 12'                            
 '03:23:22 pm'                       '11:37:53 AM'
+'2001-12-31T04:05:06Z'              '2012-08-13T11:37:53Z'
 "))
 
   D <- as.POSIXct("2012-08-13 11:37:53", tz = "UTC")
