@@ -78,3 +78,41 @@ test_that("stamp selects the correct format",{
     test_that(stamp(test_dates[[i, "date"]])(D), equals(test_dates[[i, "expected"]]))
   
   })
+
+test_that("format_offset works as expected", {
+  
+  df_winter <- data.frame(
+    tz=c("America/Chicago", "UTC", "Europe/Paris"),
+    Oo=c("-06", "+00", "+01"),
+    Oz=c("-0600", "+0000", "+0100"),
+    OO=c("-06:00", "+00:00", "+01:00"),
+    stringsAsFactors=FALSE
+  )
+  
+  for (i in seq(1, nrow(df_winter))){
+    expect_equal(format_offset(ymd("2013-01-01", tz=df_winter$tz[1]), "%Oo"), df_winter$Oo[1])
+    expect_equal(format_offset(ymd("2013-01-01", tz=df_winter$tz[1]), "%Oz"), df_winter$Oz[1])
+    expect_equal(format_offset(ymd("2013-01-01", tz=df_winter$tz[1]), "%OO"), df_winter$OO[1])
+  }
+  
+  df_summer <- data.frame(
+    tz=c("America/Chicago", "UTC", "Europe/Paris"),
+    Oo=c("-05", "+00", "+02"),
+    Oz=c("-0500", "+0000", "+0200"),
+    OO=c("-05:00", "+00:00", "+02:00"),
+    stringsAsFactors=FALSE
+  )
+  
+  for (i in seq(1, nrow(df_summer))){
+    expect_equal(format_offset(ymd("2013-07-01", tz=df_summer$tz[1]), "%Oo"), df_summer$Oo[1])
+    expect_equal(format_offset(ymd("2013-07-01", tz=df_summer$tz[1]), "%Oz"), df_summer$Oz[1])
+    expect_equal(format_offset(ymd("2013-07-01", tz=df_summer$tz[1]), "%OO"), df_summer$OO[1])
+  }
+  
+  # half-hour timezone
+  expect_warning(format_offset(ymd("2013-07-01", tz="Asia/Kolkata"), "%Oo"))
+  expect_equal(suppressWarnings(format_offset(ymd("2013-07-01", tz="Asia/Kolkata"), "%Oo")), "+0530")  
+  expect_equal(format_offset(ymd("2013-07-01", tz="Asia/Kolkata"), "%Oz"), "+0530")
+  expect_equal(format_offset(ymd("2013-07-01", tz="Asia/Kolkata"), "%OO"), "+05:30")
+  
+})
