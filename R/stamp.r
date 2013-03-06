@@ -77,21 +77,26 @@ stamp <- function(x, orders = lubridate_formats,
 
           # do we have an ISO-8601 format?
           ifelse(
-            str_detect(FMT, regexp_8601),
-            # yes - find out which one and use its function
-            switch(
-              str_extract(FMT, regexp_8601),
-              "%Ou" = { # ex: "2013-04-16T04:59:59Z"
-                FMT_new <- str_replace(FMT, regexp_8601, "Z")
-                x <- with_tz(x, tzone="UTC")
-                format(x, format = FMT_new)
-              },
-              "%Oo" = { # ex: "2013-04-16T04:59:59+01"
-                FMT_new <- str_replace(FMT, regexp_8601, "Z")
-                x <- with_tz(x, tzone="UTC")
-                format(x, format = FMT_new)
-              }
-            ),
+            str_detect(FMT, regexp_8601), 
+            { # yes - find out which one and use its function
+              sub_fmt <- str_extract(FMT, regexp_8601)
+              switch(
+                sub_fmt,
+                "%Ou" = { # ex: "2013-04-16T04:59:59Z"
+                  FMT_new <- str_replace(FMT, regexp_8601, "Z")
+                  x <- with_tz(x, tzone="UTC")
+                  format(x, format = FMT_new)
+                },
+                { # All others:
+                  # %Oo: "2013-04-16T04:59:59+01"
+                  # %Oz: "2013-04-16T04:59:59+0100"
+                  # %OO: "2013-04-16T04:59:59+01:00"
+                  FMT_new <- str_replace(FMT, regexp_8601, "")
+                  str_join(format(x, format = FMT_new),
+                           format_offset(x, fmt=sub_fmt))
+                }
+              )
+            },
             # no - use default function
             format(x, format = FMT)
           )                    
