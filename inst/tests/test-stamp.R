@@ -90,9 +90,9 @@ test_that("format_offset works as expected", {
   )
   
   for (i in seq(1, nrow(df_winter))){
-    expect_equal(format_offset(ymd("2013-01-01", tz=df_winter$tz[1]), "%Oo"), df_winter$Oo[1])
-    expect_equal(format_offset(ymd("2013-01-01", tz=df_winter$tz[1]), "%Oz"), df_winter$Oz[1])
-    expect_equal(format_offset(ymd("2013-01-01", tz=df_winter$tz[1]), "%OO"), df_winter$OO[1])
+    expect_equal(format_offset(ymd("2013-01-01", tz=df_winter$tz[i]), "%Oo"), df_winter$Oo[i])
+    expect_equal(format_offset(ymd("2013-01-01", tz=df_winter$tz[i]), "%Oz"), df_winter$Oz[i])
+    expect_equal(format_offset(ymd("2013-01-01", tz=df_winter$tz[i]), "%OO"), df_winter$OO[i])
   }
   
   df_summer <- data.frame(
@@ -104,9 +104,9 @@ test_that("format_offset works as expected", {
   )
   
   for (i in seq(1, nrow(df_summer))){
-    expect_equal(format_offset(ymd("2013-07-01", tz=df_summer$tz[1]), "%Oo"), df_summer$Oo[1])
-    expect_equal(format_offset(ymd("2013-07-01", tz=df_summer$tz[1]), "%Oz"), df_summer$Oz[1])
-    expect_equal(format_offset(ymd("2013-07-01", tz=df_summer$tz[1]), "%OO"), df_summer$OO[1])
+    expect_equal(format_offset(ymd("2013-07-01", tz=df_summer$tz[i]), "%Oo"), df_summer$Oo[i])
+    expect_equal(format_offset(ymd("2013-07-01", tz=df_summer$tz[i]), "%Oz"), df_summer$Oz[i])
+    expect_equal(format_offset(ymd("2013-07-01", tz=df_summer$tz[i]), "%OO"), df_summer$OO[i])
   }
   
   # half-hour timezone
@@ -114,5 +114,41 @@ test_that("format_offset works as expected", {
   expect_equal(suppressWarnings(format_offset(ymd("2013-07-01", tz="Asia/Kolkata"), "%Oo")), "+0530")  
   expect_equal(format_offset(ymd("2013-07-01", tz="Asia/Kolkata"), "%Oz"), "+0530")
   expect_equal(format_offset(ymd("2013-07-01", tz="Asia/Kolkata"), "%OO"), "+05:30")
+  
+})
+
+test_that("stamp works with ISO-8601 formats", {
+  
+  stamp_Ou <- stamp("2013-01-01T06:00:00Z")
+  stamp_Oo <- stamp("2013-01-01T00:00:00-06")
+  stamp_Oz <- stamp("2013-01-01T00:00:00-0600")
+  stamp_OO <- stamp("2013-01-01T00:00:00-06:00")
+  
+  df_winter <- data.frame(
+    tz=c("America/Chicago", "UTC", "Europe/Paris"),
+    Ou=c("2013-01-01T06:00:00Z", "2013-01-01T00:00:00Z", "2012-12-31T23:00:00Z"),
+    Oo=c("2013-01-01T00:00:00-06", "2013-01-01T00:00:00+00", "2013-01-01T00:00:00+01"),
+    Oz=c("2013-01-01T00:00:00-0600", "2013-01-01T00:00:00+0000", "2013-01-01T00:00:00+0100"),
+    OO=c("2013-01-01T00:00:00-06:00", "2013-01-01T00:00:00+00:00", "2013-01-01T00:00:00+01:00"),
+    stringsAsFactors=FALSE
+  )
+  
+  for (i in seq(1, nrow(df_winter))){
+    expect_equal(stamp_Ou(ymd("2013-01-01", tz=df_winter$tz[i])), df_winter$Ou[i])
+    expect_equal(stamp_Oo(ymd("2013-01-01", tz=df_winter$tz[i])), df_winter$Oo[i])
+    expect_equal(stamp_Oz(ymd("2013-01-01", tz=df_winter$tz[i])), df_winter$Oz[i])
+    expect_equal(stamp_OO(ymd("2013-01-01", tz=df_winter$tz[i])), df_winter$OO[i])
+  }
+  
+  # half-hour timezone
+  expect_equal(suppressWarnings(stamp_Ou(ymd("2013-01-01", tz="Asia/Kolkata"))), 
+               "2012-12-31T18:30:00Z")    
+  expect_warning(stamp_Oo(ymd("2013-01-01", tz="Asia/Kolkata")))
+  expect_equal(suppressWarnings(stamp_Oo(ymd("2013-01-01", tz="Asia/Kolkata"))), 
+               "2013-01-01T00:00:00+0530")  
+  expect_equal(stamp_Oz(ymd("2013-01-01", tz="Asia/Kolkata")), 
+               "2013-01-01T00:00:00+0530")
+  expect_equal(stamp_OO(ymd("2013-01-01", tz="Asia/Kolkata")), 
+               "2013-01-01T00:00:00+05:30")
   
 })
